@@ -32,6 +32,8 @@ plt.show()
 print("\n📊 Descriptive statistics:")
 print(df.describe())
 
+
+print('vighnesh')
 # Plot distribution of each feature
 df.hist(bins=30, figsize=(16, 12), color='skyblue', edgecolor='black')
 plt.suptitle('Feature Distributions', fontsize=18)
