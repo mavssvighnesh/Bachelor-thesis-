@@ -1,0 +1,44 @@
+import pandas as pd
+import numpy as np
+from statsmodels.tsa.arima.model import ARIMA
+from pmdarima import auto_arima
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+
+# Load and preprocess data
+df = pd.read_csv('./full_dataset.csv')
+df['time'] = pd.to_datetime(df['time'])
+df.set_index('time', inplace=True)
+
+# Select target variable
+series = df['down']
+
+# Train-test split
+train_size = int(len(series) * 0.8)
+train, test = series[:train_size], series[train_size:]
+
+# Auto ARIMA to find optimal parameters
+model_auto = auto_arima(train, seasonal=False, trace=True,
+                        error_action='ignore', suppress_warnings=True)
+
+# Summary of the best model
+print(model_auto.summary())
+
+# Fit ARIMA with selected params
+model = ARIMA(train, order=model_auto.order)
+model_fit = model.fit()
+
+# Forecast
+forecast = model_fit.forecast(steps=len(test))
+
+# Evaluate
+mse = mean_squared_error(test, forecast)
+print(f'Auto ARIMA Test MSE: {mse:.2f}')
+
+# Plot
+plt.figure(figsize=(14,6))
+plt.plot(test, label='Actual')
+plt.plot(test.index, forecast, label='Forecast')
+plt.title('Auto ARIMA Forecast vs Actual')
+plt.legend()
+plt.show()
